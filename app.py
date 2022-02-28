@@ -1,5 +1,4 @@
 import os
-from xml.etree.ElementTree import Comment
 
 from flask import Flask, render_template, flash, request, redirect, session, g
 import requests
@@ -32,7 +31,7 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 def serialize_drinks(id):
-    """Serialize a cupcake SQLAlchemy obj to dictionary"""
+    """Serialize a drink SQLAlchemy obj to dictionary"""
 
     data = request.json
     return {
@@ -43,7 +42,7 @@ def serialize_drinks(id):
     }
 
 def serialize_favorites(id):
-    """Serialize a cupcake SQLAlchemy obj to dictionary"""
+    """Serialize a favorite SQLAlchemy obj to dictionary"""
 
     data = request.json
     return {
@@ -171,6 +170,11 @@ def logout():
 def homepage():
     """Show homepage"""
     
+    def get_random_drink():
+    res = requests.get(f"{API_BASE_URL}/random.php")
+    data = res.json()
+    return data
+
     return render_template('home.html')
 
 @app.route('/drinks')
@@ -192,45 +196,32 @@ def get_drinks():
             print(drink[strInstructions])
     return 
     
-
+    
 @app.route('/drinks/<id>')
 def get_drink(id):
     drink = Drink.query.get_or_404(id)
     return drink
 
+@app.route('/favorites')
+def homepage():
+    """Show favorites"""
+    
+    return render_template('show_favorites.html')
 
+@app.route('/favorite/<int:id>')
+def homepage():
+    """Show favorite drink"""
+    
+    return render_template('view_favorite_drink.html')
 
-    import json
-    db.session.add(Drink(name="Cherry", ))
-    db.session.commit
-    GET
-    /drinks/<id>
+@app.route('/comment/new', methods=["GET", "POST"])
+def homepage():
+    """New comment"""
+    
+    return render_template('new_comment.html')
 
-    POST /Comment
-    PUT /comment/<id>
-    DELETE /comment/<id>
-
-def get_random_drink():
-    res = requests.get(f"{API_BASE_URL}/random.php")
-    data = res.json()
-    return data
-
-
-get_drinks(strDrink)
-def get_drinks():
-    drinks = Drink.query.all()
-    output=[]
-    for drink in drinks:
-        drink_data = {'name': drink.name, 'description': drink.description}
-        output.append(drink_data)
-
-get_drink(idDrink)
-get_drink_instructions(strInstructions)
-get_drink_picture(strDrinkThumb)
-get_drink_ingredient(strIngredient1)
-get_drink_measurement(strMeasure)
-add_comment(user_id, drink_id)
-
-
-class Get_Drinks
-    def __init__()
+@app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
+def homepage():
+    """Show comment"""
+    
+    return render_template('view_comment.html')
