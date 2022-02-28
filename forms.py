@@ -18,4 +18,4 @@ class LoginForm(FlaskForm):
 class CommentForm(FlaskForm):
     """Form for adding/editing comments"""
 
-    text = TextAreaField('text', validators=[DataRequired()])
+    comment = TextAreaField('text', validators=[DataRequired()])

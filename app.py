@@ -196,7 +196,7 @@ def get_drinks():
             print(drink[strInstructions])
     return 
     
-    
+
 @app.route('/drinks/<id>')
 def get_drink(id):
     drink = Drink.query.get_or_404(id)
@@ -218,10 +218,33 @@ def homepage():
 def homepage():
     """New comment"""
     
-    return render_template('new_comment.html')
+    form = CommentForm()
+
+    if form.validate_on_submit():
+        comment = form.comment.data
+        g.user.comments.append(comment)
+        db.session.commit()
+        flash(f"Added {comment}!")
+
+        return redirect(f"/users/{g.user.id}")
+
+    else:
+        return render_template(
+            "new_comment.html", form=form)
 
 @app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
 def homepage():
     """Show comment"""
     
     return render_template('view_comment.html')
+
+
+@app.route('users/<int:user_id>')
+def show user(user_id):
+    """Show user profile"""
+
+    user = User.query.get_or_404(user_id)
+
+    comments = (Comment.query.filter(Message.user_id == user_id))
+
+    return render_template('show_user.html', user = user, comments = comments)
