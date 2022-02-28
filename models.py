@@ -10,13 +10,13 @@ class User(db.Model):
     
     __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, unique=True, nullable=False)
     user_password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
-        return f"<User #{self.user_id}: {self.username}, {self.email}>"
+        return f"<User #{self.id}: {self.username}, {self.email}>"
 
     @classmethod
     def signup(cls, username, email, user_password):
@@ -51,49 +51,68 @@ class User(db.Model):
 
 
 class Drink(db.Model):
-    
     __tablename__ = 'drinks'
 
-    drink_id = db.Column(db.Integer, primary_key=True)
-    drink_ingredients_id = db.Column(db.Text, nullable=False)
-    drink_image = db.Column(db.Text, nullable=True)
-    drink_instructions = db.Column(db.Text, nullable=True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
+    instructions = db.Column(db.Text, nullable=True)
+    ingredients = db.relationship(
+        "Ingredient",
+        secondary="drink_ingredients",
+        backref="drinks"
+    )
 
-class Drink_ingredient(db.Model):
+    def serialize(self):
+        return {
+            "id": self.id,
+            "ingredients": [{"name":ing.name, "quantity":ing.quantity, "measument_unit":ing.measurment_unit} for ing in self.ingredients],
+            "instructions": self.instructions,
+            "image": self.image,
+            "name": self.name,
+        }
+
+class DrinkIngredient(db.Model):
     
     __tablename__ = 'drink_ingredients'
 
-    drink_ingredient_id = db.Column(db.Integer, primary_key=True)
-    drink_id = db.Column(db.Integer, db.ForeignKey('drink.drink_id', ondelete="cascade"),
-        primary_key=True,)
+    id = db.Column(db.Integer, primary_key=True)
+    drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id', ondelete="cascade"))
+    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.id', ondelete="cascade"))
     quantity = db.Column(db.Text, nullable=True)
     measurement_unit = db.Column(db.Text, nullable=True)
+
 
 class Comment(db.Model):
     
     __tablename__ = 'comments'
 
-    comment_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete="cascade"))
-    drink_id = db.Column(db.Integer, db.ForeignKey('drink.drink_id', ondelete="cascade"))
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="cascade"))
+    drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id', ondelete="cascade"))
     created_at = db.Column(db.DateTime, nullable=False)
 
 class Ingredient(db.Model):
     
     __tablename__ = 'ingredients'
 
-    ingredient_id = db.Column(db.Integer, primary_key=True)
-    drink_ingredient_id = db.Column(db.Integer, db.ForeignKey('Drink_ingredient.drink_ingredient_id', ondelete="cascade"))
-    ingredient_name = db.Column(db.Text, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text, nullable=False)
 
 class Favorite(db.Model):
     
     __tablename__ = 'favorites'
 
-    favorite_id = db.Column(db.Integer, primary_key=True)
-    drink_id = db.Column(db.Integer, db.ForeignKey('drink.drink_id', ondelete="cascade"))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id', ondelete="cascade"))
+    id = db.Column(db.Integer, primary_key=True)
+    drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id', ondelete="cascade"))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="cascade"))
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "drink_id": self.drink_id,
+            "user_id": self.user_id
+        }
 
 def connect_db(app):
     db.app = app

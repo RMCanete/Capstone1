@@ -3,8 +3,6 @@ import os
 from flask import Flask, render_template, flash, request, redirect, session, g
 import requests
 from flask_debugtoolbar import DebugToolbarExtension
-from sqlalchemy import null
-from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm
 from models import db, connect_db, User, Drink
 
@@ -20,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgres:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -29,74 +27,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-
-def serialize_drinks(id):
-    """Serialize a drink SQLAlchemy obj to dictionary"""
-
-    data = request.json
-    return {
-        "drink_id": drink.drink_id,
-        "drink_ingredients_id": drink.drink_ingredients_id,
-        "drink_instructions": drink.drink_instructions,
-        "drink_image": drink.drink_image,
-    }
-
-def serialize_favorites(id):
-    """Serialize a favorite SQLAlchemy obj to dictionary"""
-
-    data = request.json
-    return {
-        "favorite_id": favorite.favorite_id,
-        "drink_id": favorite.drink_id,
-        "user_id": favorite.user_id
-    }
-
-def view_favorites():
-
-    data = request.json
-    favorites = Favorite.query.all()
-
-    return favorites
-
-
-
-@app.route('/')
-def homepage():
-
-    return render_template('index.html')
-
-@app.route('/drinks, methods=['GET'])
-def get_drink_list():
-    """Get information about cupcakes"""
-
-    data = request.json
-    drinks = Drink.query.all()
-    serialized = [serialize_drinks(d) for d in drinks]
-
-    return drinks=serialized
-
-
-@app.route('/drinks/<int:id>', methods=['PATCH'])
-def update_cupcake_data(id):
-    """Update information about a specific cupcake"""
-
-    data = request.json
-
-    drink = Drink.query.get_or_404(id)
-
-    drink.drink_id = request.json.get(‘drink_id’, drink.drink_id)
-    drink.drink_ingredients_id = request.json.get(‘drink_ingredients_id’, drink.drink_ingredients_id)
-    drink.drink_instructions = request.json.get(‘drink_instructions’, drink.drink_instructions)
-    drink.drink_image = request.json.get('drink_image', drink.drink_image)
-
-    db.session.add(drink)
-    db.session.commit()
-
-    return jsonify(drink=serialize_drinks(drink))
-
-
-
-
+db.create_all()
 
 ##############################################33
 """User Signup/login/logout"""
@@ -116,6 +47,7 @@ def logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
+#### USER ACTIONS ####
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -163,14 +95,48 @@ def logout():
     return redirect("/login")
 
 
-#########################################################
+######
+
+@app.route('/')
+def homepage():
+
+    return render_template('index.html')
+
+@app.route('/drinks', methods=['GET'])
+def get_drink_list():
+    """Get information about cupcakes"""
+
+    data = request.json
+    drinks = Drink.query.all()
+    serialized = [serialize_drinks(d) for d in drinks]
+
+    return drinks=serialized
+
+
+@app.route('/drinks/<int:id>', methods=['PATCH'])
+def update_cupcake_data(id):
+    """Update information about a specific cupcake"""
+
+    data = request.json
+
+    drink = Drink.query.get_or_404(id)
+
+    drink.drink_id = request.json.get(‘drink_id’, drink.drink_id)
+    drink.drink_ingredients_id = request.json.get(‘drink_ingredients_id’, drink.drink_ingredients_id)
+    drink.drink_instructions = request.json.get(‘drink_instructions’, drink.drink_instructions)
+    drink.drink_image = request.json.get('drink_image', drink.drink_image)
+
+    db.session.add(drink)
+    db.session.commit()
+
+    return jsonify(drink=serialize_drinks(drink))
+
+
 """Homepage"""
 
 @app.route('/')
 def homepage():
     """Show homepage"""
-    
-    def get_random_drink():
     res = requests.get(f"{API_BASE_URL}/random.php")
     data = res.json()
     return data
@@ -203,25 +169,25 @@ def get_drink(id):
     return drink
 
 @app.route('/favorites')
-def homepage():
+def fav():
     """Show favorites"""
     
     return render_template('show_favorites.html')
 
 @app.route('/favorite/<int:id>')
-def homepage():
+def favId():
     """Show favorite drink"""
     
     return render_template('view_favorite_drink.html')
 
 @app.route('/comment/new', methods=["GET", "POST"])
-def homepage():
+def commentNew():
     """New comment"""
     
     return render_template('new_comment.html')
 
 @app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
-def homepage():
+def commentId():
     """Show comment"""
     
     return render_template('view_comment.html')
