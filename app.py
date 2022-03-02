@@ -4,7 +4,7 @@ from flask import Flask, render_template, flash, redirect, session, g
 import requests
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserAddForm, LoginForm, CommentForm
-from models import db, connect_db, User, Drink
+from models import db, connect_db, User, Drink, DrinkIngredient, Comment, Ingredient, Favorite
 
 CURR_USER_KEY = "curr_user"
 
@@ -57,10 +57,15 @@ def signup():
 
     if form.validate_on_submit():
         username = form.username.data
+        user_password = form.password.data
         email = form.email.data
-        password = form.password.data
+
+        user = User(username=username, user_password=user_password, email=email)
+        db.session.add(user)
+        db.session.commit()
         flash(f"Added {username}!")
-        return redirect("/signup")
+
+        return redirect("/login")
 
     else:
         return render_template(
@@ -73,8 +78,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data,
-                                 form.password.data)
+        user = User.authenticate(form.username.data, form.password.data)
 
         if user:
             login(user)
@@ -180,6 +184,7 @@ def commentNew():
     if form.validate_on_submit():
         comment = form.comment.data
         g.user.comments.append(comment)
+        db.session.add(comment)
         db.session.commit()
         flash(f"Added {comment}!")
 
@@ -193,9 +198,9 @@ def commentNew():
 def commentId():
     """Show comment"""
     
-    comment = Comment.query.get(id)
+    comment = Comment.query.get_or_404(id)
 
-    return render_template('view_comment.html', comment = comment)
+    return render_template('view_comment.html', comment=comment)
 
 
 @app.route('/users/<int:user_id>')
