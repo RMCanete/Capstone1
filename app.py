@@ -1,9 +1,9 @@
 import os
 
-from flask import Flask, render_template, flash, request, redirect, session, g
+from flask import Flask, render_template, flash, redirect, session, g
 import requests
 from flask_debugtoolbar import DebugToolbarExtension
-from forms import UserAddForm, LoginForm
+from forms import UserAddForm, LoginForm, CommentForm
 from models import db, connect_db, User, Drink
 
 CURR_USER_KEY = "curr_user"
@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -27,7 +27,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-db.create_all()
+# db.create_all()
 
 ##############################################33
 """User Signup/login/logout"""
@@ -97,76 +97,63 @@ def logout():
 
 ######
 
-@app.route('/')
-def homepage():
-
-    return render_template('index.html')
-
-@app.route('/drinks', methods=['GET'])
-def get_drink_list():
-    """Get information about cupcakes"""
-
-    data = request.json
-    drinks = Drink.query.all()
-    serialized = [serialize_drinks(d) for d in drinks]
-
-    return drinks=serialized
-
-
-@app.route('/drinks/<int:id>', methods=['PATCH'])
-def update_cupcake_data(id):
-    """Update information about a specific cupcake"""
-
-    data = request.json
-
-    drink = Drink.query.get_or_404(id)
-
-    drink.drink_id = request.json.get(‘drink_id’, drink.drink_id)
-    drink.drink_ingredients_id = request.json.get(‘drink_ingredients_id’, drink.drink_ingredients_id)
-    drink.drink_instructions = request.json.get(‘drink_instructions’, drink.drink_instructions)
-    drink.drink_image = request.json.get('drink_image', drink.drink_image)
-
-    db.session.add(drink)
-    db.session.commit()
-
-    return jsonify(drink=serialize_drinks(drink))
-
-
 """Homepage"""
 
 @app.route('/')
 def homepage():
     """Show homepage"""
-    res = requests.get(f"{API_BASE_URL}/random.php")
-    data = res.json()
-    return data
+    res = requests.get(f"{API_BASE_URL}/random.php", params={"key": 1,})
 
-    return render_template('home.html')
+    data = res.json()
+    output = []
+
+    for drink in data['drinks']:
+
+        name = (drink['strDrink'])
+        instructions = (drink['strInstructions'])
+        image = (drink['strDrinkThumb'])
+        ingredient = []
+        measurement = []
+        for i in range(1,5):
+            ingredient.append(drink[f"strIngredient{i}"])
+            measurement.append(drink[f"strMeasure{i}"])
+
+        drink = {'name':name, 'instructions':instructions, 'image':image, 'ingredient': ingredient, 'measurement': measurement}
+        output.append(drink)
+
+    return render_template('home.html', output=output)
 
 @app.route('/drinks')
 def get_drinks():
-    drinks = Drink.query.all()
-    output=[]
-    for drink in drinks:
-        drink_data = {'name': drink.name, 'description': drink.description}
-        output.append(drink_data)
-
-
-
-    res = requests.get(f"{API_BASE_URL}", params)
-    data = res.json()
-
-    for drink in data['drinks']:
-        print(drink[strDrink])
-        if drink['strInstructions'] == null:
-            print(drink[strInstructions])
-    return 
+    """"Call API"""
+    # drinks = Drink.query.all()
+    
     
 
 @app.route('/drinks/<id>')
 def get_drink(id):
     drink = Drink.query.get_or_404(id)
-    return drink
+
+    render_template('view_drink.html', drink=drink)
+
+# @app.route('/drinks/<int:id>', methods=['PATCH'])
+# def update_drink_data(id):
+#     """Update information about a specific drink"""
+
+#     data = request.json
+
+#     drink = Drink.query.get_or_404(id)
+
+#     drink.drink_id = request.json.get(‘id’, drink.id)
+#     drink.drink_ingredients_id = request.json.get(‘drink_ingredients_id’, drink.drink_ingredients_id)
+#     drink.drink_instructions = request.json.get(‘drink_instructions’, drink.drink_instructions)
+#     drink.drink_image = request.json.get('drink_image', drink.drink_image)
+
+#     db.session.add(drink)
+#     db.session.commit()
+
+#     return jsonify(drink=serialize_drinks(drink))
+
 
 @app.route('/favorites')
 def fav():
@@ -184,6 +171,10 @@ def favId():
 def commentNew():
     """New comment"""
     
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+
     form = CommentForm()
 
     if form.validate_on_submit():
@@ -202,15 +193,18 @@ def commentNew():
 def commentId():
     """Show comment"""
     
-    return render_template('view_comment.html')
+    comment = Comment.query.get(id)
+
+    return render_template('view_comment.html', comment = comment)
 
 
-@app.route('users/<int:user_id>')
-def show user(user_id):
+@app.route('/users/<int:user_id>')
+def show_user(user_id):
     """Show user profile"""
 
     user = User.query.get_or_404(user_id)
 
-    comments = (Comment.query.filter(Message.user_id == user_id))
+    comments = (Comment.query.filter(Comment.user_id == user_id))
 
     return render_template('show_user.html', user = user, comments = comments)
+
