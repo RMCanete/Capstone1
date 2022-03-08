@@ -1,14 +1,17 @@
 import os
+from sqlite3 import IntegrityError
 
-from flask import Flask, render_template, flash, redirect, session, g
+from flask import Flask, render_template, flash, redirect, session, g, jsonify
 import requests
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserAddForm, LoginForm, CommentForm
 from models import db, connect_db, User, Drink, DrinkIngredient, Comment, Ingredient, Favorite
+from helper import add_drink, check_for_ingredient
 
 CURR_USER_KEY = "curr_user"
 
-API_BASE_URL = "www.thecocktaildb.com/api/json/v1/1"
+base_url="https://www.thecocktaildb.com/api/json/v1/1"
+
 
 # You should keep your API key a secret (I'm keeping it here so you can run this app)
 key = '1'
@@ -18,7 +21,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
@@ -28,6 +31,20 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 # db.create_all()
+
+"""API CALLS"""
+
+def get_drinks_by_name(name):
+    res = requests.get(f"{base_url}/search.php", params={"s": name})
+    return res.json()["drinks"][0]
+
+def get_drink_by_id(id):
+    res = requests.get(f"{base_url}/lookup.php", params={"i": id})
+    return res.json()["drinks"][0]
+
+def get_random_cocktail():
+    res = requests.get(f"{base_url}/random.php")
+    return res.json()["drinks"][0]
 
 ##############################################33
 """User Signup/login/logout"""
@@ -56,20 +73,21 @@ def signup():
     form = UserAddForm()
 
     if form.validate_on_submit():
-        username = form.username.data
-        user_password = form.password.data
-        email = form.email.data
+        try:
+            user = User.signup(username=form.username.data, password=form.password.data, email=form.email.data)
+            db.session.commit()
+            flash(f"Added {user.username}!")
+        except IntegrityError:
+            flash("Username already taken", 'danger')
+            return render_template('user_add_form.html', form=form)
 
-        user = User(username=username, user_password=user_password, email=email)
-        db.session.add(user)
-        db.session.commit()
-        flash(f"Added {username}!")
+        login(user)
 
-        return redirect("/login")
+        return redirect("/favorites")
 
     else:
         return render_template(
-            "user_add_form.html", form=form)
+            "login.html", form=form)
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -81,9 +99,9 @@ def login():
         user = User.authenticate(form.username.data, form.password.data)
 
         if user:
-            login(user)
+            # login(user)
             flash(f"Hello, {user.username}!", "success")
-            return redirect("/")
+            return redirect("/favorites")
 
         flash("Invalid credentials.", 'danger')
 
@@ -106,69 +124,59 @@ def logout():
 @app.route('/')
 def homepage():
     """Show homepage"""
-    res = requests.get(f"{API_BASE_URL}/random.php", params={"key": 1,})
 
-    data = res.json()
-    output = []
+    random = get_random_cocktail()
+    add_drink(random)
+    print(random)
 
-    for drink in data['drinks']:
+    drink = random
 
-        name = (drink['strDrink'])
-        instructions = (drink['strInstructions'])
-        image = (drink['strDrinkThumb'])
-        ingredient = []
-        measurement = []
-        for i in range(1,5):
-            ingredient.append(drink[f"strIngredient{i}"])
-            measurement.append(drink[f"strMeasure{i}"])
-
-        drink = {'name':name, 'instructions':instructions, 'image':image, 'ingredient': ingredient, 'measurement': measurement}
-        output.append(drink)
-
-    return render_template('home.html', output=output)
+    return render_template('home.html', random=random, drink=drink)
 
 @app.route('/drinks')
 def get_drinks():
     """"Call API"""
-    # drinks = Drink.query.all()
-    
-    
+
+    drinks = Drink.query.all()
+    serialized = [drinks.serialize() for d in drinks]
+
+    # jsonify(drinks = serialized)
+    return render_template('view_drink.html', drink=serialized)
 
 @app.route('/drinks/<id>')
 def get_drink(id):
+
+    ingredient = []
     drink = Drink.query.get_or_404(id)
+    drinkIngredient = DrinkIngredient.query.all()
+    ingredients = Ingredient.query.all()
+    for ingredient in ingredients:
+        if check_for_ingredient(ingredient):
+            return ingredient.name
 
-    render_template('view_drink.html', drink=drink)
-
-# @app.route('/drinks/<int:id>', methods=['PATCH'])
-# def update_drink_data(id):
-#     """Update information about a specific drink"""
-
-#     data = request.json
-
-#     drink = Drink.query.get_or_404(id)
-
-#     drink.drink_id = request.json.get(‘id’, drink.id)
-#     drink.drink_ingredients_id = request.json.get(‘drink_ingredients_id’, drink.drink_ingredients_id)
-#     drink.drink_instructions = request.json.get(‘drink_instructions’, drink.drink_instructions)
-#     drink.drink_image = request.json.get('drink_image', drink.drink_image)
-
-#     db.session.add(drink)
-#     db.session.commit()
-
-#     return jsonify(drink=serialize_drinks(drink))
+    return render_template('view_drink.html', drink=drink, ingredient=ingredient, drinkIngredient=drinkIngredient)
 
 
 @app.route('/favorites')
 def fav():
     """Show favorites"""
-    
-    return render_template('show_favorites.html')
+
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+
+    favorite = Favorite.query.all()
+
+    return render_template('show_favorites.html', favorite=favorite)
 
 @app.route('/favorite/<int:id>')
 def favId():
     """Show favorite drink"""
-    
+
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+
     return render_template('view_favorite_drink.html')
 
 @app.route('/comment/new', methods=["GET", "POST"])
@@ -207,9 +215,12 @@ def commentId():
 def show_user(user_id):
     """Show user profile"""
 
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+
     user = User.query.get_or_404(user_id)
 
     comments = (Comment.query.filter(Comment.user_id == user_id))
 
     return render_template('show_user.html', user = user, comments = comments)
-

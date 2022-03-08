@@ -3,6 +3,7 @@
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
+bcrypt=Bcrypt()
 db = SQLAlchemy()
 
 
@@ -12,22 +13,22 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, unique=True, nullable=False)
-    user_password = db.Column(db.Text, nullable=False)
+    password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
     @classmethod
-    def signup(cls, username, email, user_password):
+    def signup(cls, username, email, password):
         """Sign up user.
 
         Hashes password and adds user to system.
         """
 
-        hashed_pwd = Bcrypt.generate_password_hash(user_password).decode('UTF-8')
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
 
-        user = User(username=username, email=email, user_password=hashed_pwd)
+        user = User(username=username, email=email, password=hashed_pwd)
 
         db.session.add(user)
         return user
@@ -42,7 +43,7 @@ class User(db.Model):
         user = cls.query.filter_by(username=username).first()
 
         if user:
-            is_auth = Bcrypt.check_password_hash(user.password, password)
+            is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
                 return user
 
@@ -81,7 +82,6 @@ class DrinkIngredient(db.Model):
     ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.id', ondelete="cascade"))
     quantity = db.Column(db.Text, nullable=True)
     measurement_unit = db.Column(db.Text, nullable=True)
-
 
 class Comment(db.Model):
     

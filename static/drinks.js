@@ -8,21 +8,21 @@ function createDrinkHTML(drink) {
     </div>`;
   }
   
-async function showFavoritesList() {
-  const response = await axios.get(`http://127.0.0.1:5000/show_favorites`);    
-  for (let favorites of response.data.favorites) {
-    let favorite = $(createDrinkHTML(favorites));
-    $("#favorites-list").append(favorite);
-  }
-}
+// async function showFavoritesList() {
+//   const response = await axios.get(`http://127.0.0.1:5000/show_favorites`);    
+//   for (let favorites of response.data.favorites) {
+//     let favorite = $(createDrinkHTML(favorites));
+//     $("#favorites-list").append(favorite);
+//   }
+// }
 
 async function showDrinksList() {
-    const response = await axios.get(`www.thecocktaildb.com/api/json/v1/1`);    
+    const response = await axios.get(`http://127.0.0.1:5000/drinks`);    
     for (let drinks of response.data.drinks) {
       let drink = $(createDrinkHTML(drinks));
       $("#drinks-list").append(drink);
     }
   }
 
-showFavoritesList();
+// showFavoritesList();
 showDrinksList();

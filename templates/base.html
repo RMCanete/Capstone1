@@ -12,6 +12,7 @@
 
 
   <link rel="stylesheet" href="/static/drinks.css">
+  <script src="/static/drinks.js"></script>
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
@@ -26,8 +27,8 @@
     <ul class="nav navbar-nav navbar-right">
       {% if request.endpoint != None %}
       <li>
-        <form class="navbar-form navbar-right" action="/">
-          <input name="q" class="form-control" placeholder="Search" id="search">
+        <form class="navbar-form navbar-right" action="http://www.thecocktaildb.com/browse.php">
+          <input type="text" name="s" class="form-control" placeholder="Search" id="search">
           <button class="btn btn-default">
             <span class="fa fa-search"></span>
           </button>

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<body>
+    <div class="container">
+      <h1 class="text-center display-1">{{ drink.name }}<img src="{{ drink.image }}"></img></h1>
+      <div class="row justify-content-center">
+        <div class="col-6">
+          <ul id="favorites-list">
+          </ul>
+          <ul id="drinks-list">
+              <li>{{ drink.instructions }}</li>
+              {% if drink.ingredients == ingredient %}
+                <li>{{ ingredient.name }}</li>
+              {% endif %}
+              <li>{{ drinkIngredient }}</li>
+              <li>{{ ingredient.name }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="/static/drinks.js"></script>
+</body>
+
+
+{% endblock %}
