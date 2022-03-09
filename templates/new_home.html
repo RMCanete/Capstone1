@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<body>
+  
+    <form method="Get" action="/cocktail/random">
+      <button>Get Random Cocktail</button>
+    </form>
+
+    <h1>Search for Cocktail</h1>
+
+    <form id="user-add-form" action="/cocktail" method="GET">
+      {{ searchForm.hidden_tag() }} <!--add type=hidden form fields -->
+    
+      {% for field in searchForm
+             if field.widget.input_type != 'hidden' %}
+    
+        <p>
+          {{ field.label }}
+          {{ field }}
+    
+          {% for error in field.errors %}
+            {{ error }}
+          {% endfor %}
+        </p>
+    
+      {% endfor %}
+    
+      <button type="submit">Submit</button>
+    </form>
+</body>
+
+
+{% endblock %}

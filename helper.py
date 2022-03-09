@@ -21,8 +21,7 @@ def parse_drink(drink):
             else:
                 measurment=None
                 quantity=None
-            # drink_ingredients.append(DrinkIngredient(drink_id=added_drink.id,ingredient_id=ingredient.id,quantity=quantity,measurement_unit=measurment))
-            drink_ingredients.append(DrinkIngredient(ingredient_id=ingredient.id,quantity=quantity,measurement_unit=measurment))
+            drink_ingredients.append(DrinkIngredient(drink_id=added_drink.id,ingredient_id=ingredient.id,quantity=quantity,measurement_unit=measurment))
 
         else:
             break
