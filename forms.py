@@ -19,3 +19,8 @@ class CommentForm(FlaskForm):
     """Form for adding/editing comments"""
 
     comment = TextAreaField('text', validators=[DataRequired()])
+
+class CocktailSearch(FlaskForm):
+    """Form for adding/editing comments"""
+
+    search = StringField('search')

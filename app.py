@@ -1,16 +1,13 @@
 import os
 from sqlite3 import IntegrityError
 
-from flask import Flask, render_template, flash, redirect, session, g, jsonify
-import requests
+from flask import Flask, render_template, flash, redirect, request, session, g, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from forms import UserAddForm, LoginForm, CommentForm
+from forms import UserAddForm, LoginForm, CommentForm,CocktailSearch
 from models import db, connect_db, User, Drink, DrinkIngredient, Comment, Ingredient, Favorite
 from helper import add_drink, check_for_ingredient
-
+from api import get_drink_by_id,get_drinks_by_name,get_random_cocktail
 CURR_USER_KEY = "curr_user"
-
-base_url="https://www.thecocktaildb.com/api/json/v1/1"
 
 
 # You should keep your API key a secret (I'm keeping it here so you can run this app)
@@ -21,30 +18,14 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-toolbar = DebugToolbarExtension(app)
+#toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-# db.create_all()
-
-"""API CALLS"""
-
-def get_drinks_by_name(name):
-    res = requests.get(f"{base_url}/search.php", params={"s": name})
-    return res.json()["drinks"][0]
-
-def get_drink_by_id(id):
-    res = requests.get(f"{base_url}/lookup.php", params={"i": id})
-    return res.json()["drinks"][0]
-
-def get_random_cocktail():
-    res = requests.get(f"{base_url}/random.php")
-    return res.json()["drinks"][0]
+db.create_all()
 
 ##############################################33
 """User Signup/login/logout"""
@@ -124,14 +105,29 @@ def logout():
 @app.route('/')
 def homepage():
     """Show homepage"""
+    form = CocktailSearch()
+    return render_template('new_home.html', searchForm=form)
 
-    random = get_random_cocktail()
-    add_drink(random)
-    print(random)
+@app.route('/cocktail/random')
+def cocktail_random():
+    """Show homepage"""
+    random_cocktail=get_random_cocktail()
+    print("HELLO")
+    return render_template('random_cocktail.html',cocktail=random_cocktail)
 
-    drink = random
 
-    return render_template('home.html', random=random, drink=drink)
+@app.route('/cocktail')
+def cocktail():
+    """Show homepage"""
+    drink_name=request.args.get('search',None)
+    if drink_name:
+        cocktails=get_drinks_by_name(drink_name)
+        if cocktails:
+            return render_template('cocktail.html',cocktails=cocktails)
+        return redirect("/")
+        
+    return redirect("/")
+
 
 @app.route('/drinks')
 def get_drinks():
