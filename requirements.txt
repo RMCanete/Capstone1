@@ -6,6 +6,7 @@ charset-normalizer==2.0.12
 click==8.0.3
 colorama==0.4.4
 dnspython==2.2.0
+flash==1.0.3
 Flask==2.0.2
 Flask-Bcrypt==0.7.1
 Flask-DebugToolbar==0.11.0
@@ -18,12 +19,12 @@ is-disposable-email==1.0.0
 itsdangerous==2.0.1
 Jinja2==3.0.3
 MarkupSafe==2.0.1
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
 pycparser==2.21
 requests==2.27.1
 six==1.16.0
 SQLAlchemy==1.4.31
-typing_extensions==4.0.1
+typing-extensions==4.0.1
 urllib3==1.26.8
 Werkzeug==2.0.3
 WTForms==3.0.1

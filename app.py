@@ -1,6 +1,6 @@
 import os
 from sqlite3 import IntegrityError
-
+# from sqlalchemy.exc import IntegrityError
 from flask import Flask, render_template, flash, redirect, request, session, g, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserAddForm, LoginForm, CommentForm,CocktailSearch
@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -38,10 +38,10 @@ def add_user_to_g():
         g.user = User.query.get(session[CURR_USER_KEY])
     else: g.user = None
 
-def login(user):
+def doLogin(user):
     session[CURR_USER_KEY] = user.id
 
-def logout():
+def doLogout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
@@ -51,6 +51,9 @@ def logout():
 def signup():
     """User add form; handle adding."""
 
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+
     form = UserAddForm()
 
     if form.validate_on_submit():
@@ -58,17 +61,17 @@ def signup():
             user = User.signup(username=form.username.data, password=form.password.data, email=form.email.data)
             db.session.commit()
             flash(f"Added {user.username}!")
-        except IntegrityError:
+        except IntegrityError as e:
             flash("Username already taken", 'danger')
-            return render_template('user_add_form.html', form=form)
+            return render_template('signup.html', form=form)
 
-        login(user)
+        doLogin(user)
 
-        return redirect("/favorites")
+        return redirect("/")
 
     else:
         return render_template(
-            "login.html", form=form)
+            "signup.html", form=form)
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -78,11 +81,12 @@ def login():
 
     if form.validate_on_submit():
         user = User.authenticate(form.username.data, form.password.data)
+        db.session.commit()
 
         if user:
-            # login(user)
+            doLogin(user)
             flash(f"Hello, {user.username}!", "success")
-            return redirect("/favorites")
+            return redirect("/")
 
         flash("Invalid credentials.", 'danger')
 
@@ -92,7 +96,7 @@ def login():
 def logout():
     """Handle logout of user."""
 
-    logout()
+    doLogout()
 
     flash("You have successfully logged out.", 'success')
     return redirect("/login")
@@ -105,12 +109,22 @@ def logout():
 @app.route('/')
 def homepage():
     """Show homepage"""
-    form = CocktailSearch()
-    return render_template('new_home.html', searchForm=form)
+
+    if g.user:
+
+        form = CocktailSearch()
+        return render_template('new_home.html', searchForm=form)
+
+    form = LoginForm()    
+    return redirect('/login')
 
 @app.route('/cocktail/random')
 def cocktail_random():
-    """Show homepage"""
+    """Show random cocktail page"""
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/signup")
+
     random_cocktail=get_random_cocktail()
     print("HELLO")
     return render_template('random_cocktail.html',cocktail=random_cocktail)
@@ -118,7 +132,11 @@ def cocktail_random():
 
 @app.route('/cocktail')
 def cocktail():
-    """Show homepage"""
+    """Show cocktail"""
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/signup")
+
     drink_name=request.args.get('search',None)
     if drink_name:
         cocktails=get_drinks_by_name(drink_name)
@@ -220,3 +238,11 @@ def show_user(user_id):
     comments = (Comment.query.filter(Comment.user_id == user_id))
 
     return render_template('show_user.html', user = user, comments = comments)
+
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """404 NOT FOUND page."""
+
+    return render_template('404.html'), 404
