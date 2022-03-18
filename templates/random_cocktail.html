@@ -2,8 +2,26 @@
 {% block content %}
 
 <body>
-  <h2>{{cocktail.strDrink}}</h2>
-    <img src="{{cocktail.strDrinkThumb}}"><img>
+  <div class="drink" id="{{cocktail.idDrink}}">
+  <h2>{{cocktail.drink.name}}</h2>
+    <img src="{{cocktail.drink.image}}"><img>
+    <h2>Ingredients:</h2>
+    <ul>
+    {% for ingredient in cocktail.ingredients %}
+      <li id="{{ingredient.id}}">{{ingredient.name}}
+      {% for drink_ingredient in cocktail.drink_ingredients %}
+      {{ingredient.id}}
+        {% if drink_ingredient.ingredient_id == ingredient.id and drink_ingredient.drink_id == cocktail.drink.id %}
+            <span>, Quantity: {{drink_ingredient.quantity}}</span>
+        {% endif %}
+      {% endfor %}
+    </li>
+    {% endfor %}
+  </ul>
+    <h2>Instruction:</h2>
+    <p>{{cocktail.drink.instructions}}</p>
+    
+  </div>
 </body>
 
 

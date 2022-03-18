@@ -5,7 +5,7 @@ from flask import Flask, render_template, flash, redirect, request, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserAddForm, LoginForm, CommentForm,CocktailSearch
 from models import db, connect_db, User, Drink, DrinkIngredient, Comment, Ingredient, Favorite
-from helper import add_drink, check_for_ingredient
+from helper import add_drink, check_for_ingredient,parse_drink
 from api import get_drink_by_id,get_drinks_by_name,get_random_cocktail
 CURR_USER_KEY = "curr_user"
 
@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -126,8 +126,9 @@ def cocktail_random():
         return redirect("/signup")
 
     random_cocktail=get_random_cocktail()
+    print(random_cocktail)
     print("HELLO")
-    return render_template('random_cocktail.html',cocktail=random_cocktail)
+    return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail))
 
 
 @app.route('/cocktail')
