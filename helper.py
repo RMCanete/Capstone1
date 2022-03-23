@@ -21,7 +21,7 @@ def parse_drink(drink):
             else:
                 measurment=None
                 quantity=None
-            drink_ingredients.append(DrinkIngredient(drink_id=added_drink.id,ingredient_id=ingredient.id,quantity=quantity,measurement_unit=measurment))
+            drink_ingredients.append(DrinkIngredient(drink_id=added_drink.id,quantity=quantity,measurement_unit=measurment))
 
         else:
             break
@@ -41,7 +41,7 @@ def check_for_ingredient(name):
     return ingredients[0]
 
 def add_drink(drink):
-    if not check_for_drink(drink["idDrink"]):
+    if not check_for_drink(drink.id):
         result = parse_drink(drink)
         db.session.add(result["drink"])
         db.session.bulk_save_objects(result["ingredients"])

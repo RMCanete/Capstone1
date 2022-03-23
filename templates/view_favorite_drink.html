@@ -2,21 +2,34 @@
 {% block content %}
 
 <body>
-    <div class="container">
-      <h1 class="text-center display-1">Cupcake List</h1>
-      <div class="row justify-content-center">
-        <div class="col-6">
-          <ul id="favorites-list">
-          </ul>
-          <ul id="drinks-list">
-          </ul>
-        </div>
-      </div>
-    </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-  <script src="/static/drinks.js"></script>
+  <h1>{{cocktail.drink.id}}</h1>
+
+  <div class="drink" id="{{cocktail.drink.id}}">
+  <h2>{{cocktail.drink.name}}</h2>
+    <a href="/cocktail/{{cocktail.drink.id}}"><img src="{{cocktail.drink.image}}"><img></a>
+    <h2>Ingredients:</h2>
+    <ul>
+    {% for ingredient in cocktail.ingredients %}
+      <li id="{{ingredient.id}}">{{ingredient.name}}
+      {% for drink_ingredient in cocktail.drink_ingredients %}
+        {% if drink_ingredient.ingredient_id == ingredient.id %}
+        {% if drink_ingredient.drink_id == cocktail.drink.id %}
+            <span>, Quantity: {{drink_ingredient.quantity}} {{drink_ingredient.measurement_unit}}</span>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+    </li>
+    {% endfor %}
+  </ul>
+    <h2>Instruction:</h2>
+    <p>{{cocktail.drink.instructions}}</p>
+    
+    <a href="/favorites"><input type="button" value="Add Favorite"></a>
+    <a href="/comment/new"><input type="button" value="Add Comment"></a>
+  </div>
 </body>
 
 
 {% endblock %}
+
+<!-- == ingredient.name and drink_ingredient.drink_id == cocktail.drink.id  -->

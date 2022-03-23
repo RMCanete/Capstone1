@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -126,8 +126,8 @@ def cocktail_random():
         return redirect("/signup")
 
     random_cocktail=get_random_cocktail()
-    print(random_cocktail)
-    print("HELLO")
+
+    # add_drink(random_cocktail)
     return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail))
 
 
@@ -138,15 +138,31 @@ def cocktail():
         flash("Access unauthorized.", "danger")
         return redirect("/signup")
 
-    drink_name=request.args.get('search',None)
-    if drink_name:
-        cocktails=get_drinks_by_name(drink_name)
-        if cocktails:
-            return render_template('cocktail.html',cocktails=cocktails)
-        return redirect("/")
+    # drink_name=request.args.get('search',None)
+    # if drink_name:
+    #     cocktails=get_drinks_by_name(drink_name)
+    #     if cocktails:
+    #         return render_template('cocktail.html',cocktails=cocktails)
+    #     return redirect("/")
         
-    return redirect("/")
+    drinks = Drink.query.all()
+    
+    return render_template('cocktail.html',cocktails=drinks)
 
+    # return redirect("/")
+
+@app.route('/cocktail/<id>')
+def show_cocktail(id):
+    """Show random cocktail page"""
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/signup")
+
+    cocktail = Drink.query.get_or_404(id)
+
+    add_drink(cocktail)
+
+    return render_template('show_cocktail.html',cocktail=cocktail)
 
 @app.route('/drinks')
 def get_drinks():
@@ -165,11 +181,11 @@ def get_drink(id):
     drink = Drink.query.get_or_404(id)
     drinkIngredient = DrinkIngredient.query.all()
     ingredients = Ingredient.query.all()
-    for ingredient in ingredients:
-        if check_for_ingredient(ingredient):
-            return ingredient.name
+    # for ingredient in ingredients:
+    #     if check_for_ingredient(ingredient):
+    #         return ingredient.name
 
-    return render_template('view_drink.html', drink=drink, ingredient=ingredient, drinkIngredient=drinkIngredient)
+    return render_template('view_drink.html', drink=drink, ingredients=ingredients, drinkIngredient=drinkIngredient)
 
 
 @app.route('/favorites')
@@ -179,20 +195,25 @@ def fav():
     if not g.user:
         flash("Access unauthorized!", "danger")
         return redirect("/")
-
+    
     favorite = Favorite.query.all()
+    drink = Drink.query.all()
+    drinkIngredient = DrinkIngredient.query.all()
+    ingredients = Ingredient.query.all()
+    
+    return render_template('show_favorites.html', favorite=favorite, cocktail=drink, ingredients=ingredients, drinkIngredient=drinkIngredient)
 
-    return render_template('show_favorites.html', favorite=favorite)
 
 @app.route('/favorite/<int:id>')
-def favId():
+def favId(id):
     """Show favorite drink"""
 
     if not g.user:
         flash("Access unauthorized!", "danger")
         return redirect("/")
+    drink = Drink.query.get_or_404(id)
 
-    return render_template('view_favorite_drink.html')
+    return render_template('view_favorite_drink.html', cocktail=drink)
 
 @app.route('/comment/new', methods=["GET", "POST"])
 def commentNew():
@@ -206,7 +227,7 @@ def commentNew():
 
     if form.validate_on_submit():
         comment = form.comment.data
-        g.user.comments.append(comment)
+        # g.comments.add(comment)
         db.session.add(comment)
         db.session.commit()
         flash(f"Added {comment}!")
@@ -225,6 +246,13 @@ def commentId():
 
     return render_template('view_comment.html', comment=comment)
 
+@app.route('/comment', methods=["GET", "PUT", "PATCH"])
+def view_all_comments():
+    """Show comments"""
+    
+    comments = Comment.query.all()
+
+    return render_template('view__all_comment.html', comments=comments)
 
 @app.route('/users/<int:user_id>')
 def show_user(user_id):
