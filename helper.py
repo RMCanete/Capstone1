@@ -3,7 +3,7 @@ from models import Drink,Ingredient,DrinkIngredient,db
 def parse_drink(drink):
     added_drink= Drink(id=drink['idDrink'],name=drink['strDrink'],instructions=drink['strInstructions'],image=drink['strDrinkThumb'])
     ingredients=[]
-    drink_ingredients=[]
+    drink_data=[]
     for i in range(1,16):
         ingredient_name=drink.get(f"strIngredient{i}",None)
         ingredient_measure=drink.get(f"strMeasure{i}",None)
@@ -21,18 +21,17 @@ def parse_drink(drink):
             else:
                 measurment=None
                 quantity=None
-            drink_ingredients.append(DrinkIngredient(drink_id=added_drink.id,quantity=quantity,measurement_unit=measurment))
-
+            drink_data.append({"ingredient_name":ingredient.name,"measurment":measurment,"quantity":quantity})
         else:
             break
-    return {"drink":added_drink, "ingredients":ingredients,"drink_ingredients":drink_ingredients}
+    return {"drink":added_drink, "ingredients":ingredients,"drink_data":drink_data}
 
 
 def check_for_drink(id):
     drinks=Drink.query.filter_by(id=id)
     if drinks.count()==0:
         return False
-    return True
+    return drinks[0]
 
 def check_for_ingredient(name):
     ingredients=Ingredient.query.filter_by(name=name)
@@ -41,11 +40,20 @@ def check_for_ingredient(name):
     return ingredients[0]
 
 def add_drink(drink):
-    if not check_for_drink(drink.id):
+    if not check_for_drink(drink["idDrink"]):
         result = parse_drink(drink)
         db.session.add(result["drink"])
+        db.session.commit()
         db.session.bulk_save_objects(result["ingredients"])
-        db.session.bulk_save_objects(result["drink_ingredients"])
+        db.session.commit()
+
+        drink_ingredients=[]
+        for data in result["drink_data"]:
+            ingredient= check_for_ingredient(data["ingredient_name"])
+            if not ingredient:
+                continue
+            drink_ingredients.append(DrinkIngredient(drink_id=drink["idDrink"],ingredient_id=ingredient.id,measurement_unit=data["measurment"],quantity=data["quantity"]))
+        db.session.bulk_save_objects(drink_ingredients)
         db.session.commit()
         return True
     return False
