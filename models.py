@@ -2,6 +2,7 @@
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+# from flask.ext.bcrypt import Bcrypt
 
 bcrypt=Bcrypt()
 db = SQLAlchemy()
@@ -88,6 +89,7 @@ class Comment(db.Model):
     __tablename__ = 'comments'
 
     id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="cascade"))
     drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id', ondelete="cascade"))
     created_at = db.Column(db.DateTime, nullable=False)

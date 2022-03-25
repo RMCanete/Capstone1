@@ -1,2 +1,8 @@
 Comments:
 {{comments}}
+
+<ul>
+    {% for comment in comments %}
+    <li><a href="comment/{{ comment.id }}">{{ comment.text }}</a></li>
+    {% endfor %}
+  </ul>

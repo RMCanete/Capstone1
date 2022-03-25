@@ -2,13 +2,13 @@ import os
 from sqlite3 import IntegrityError
 # from sqlalchemy.exc import IntegrityError
 from flask import Flask, render_template, flash, redirect, request, session, g, jsonify
-from flask_debugtoolbar import DebugToolbarExtension
+# from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserAddForm, LoginForm, CommentForm,CocktailSearch
 from models import db, connect_db, User, Drink, DrinkIngredient, Comment, Ingredient, Favorite
 from helper import add_drink, check_for_ingredient,parse_drink
 from api import get_drink_by_id,get_drinks_by_name,get_random_cocktail
 CURR_USER_KEY = "curr_user"
-
+# FLASK_DEBUG=True
 
 # You should keep your API key a secret (I'm keeping it here so you can run this app)
 key = '1'
@@ -164,30 +164,6 @@ def show_cocktail(id):
 
     return render_template('show_cocktail.html',cocktail=cocktail)
 
-@app.route('/drinks')
-def get_drinks():
-    """"Call API"""
-
-    drinks = Drink.query.all()
-    serialized = [drinks.serialize() for d in drinks]
-
-    # jsonify(drinks = serialized)
-    return render_template('view_drink.html', drink=serialized)
-
-@app.route('/drinks/<id>')
-def get_drink(id):
-
-    ingredient = []
-    drink = Drink.query.get_or_404(id)
-    drinkIngredient = DrinkIngredient.query.all()
-    ingredients = Ingredient.query.all()
-    # for ingredient in ingredients:
-    #     if check_for_ingredient(ingredient):
-    #         return ingredient.name
-
-    return render_template('view_drink.html', drink=drink, ingredients=ingredients, drinkIngredient=drinkIngredient)
-
-
 @app.route('/favorites')
 def fav():
     """Show favorites"""
@@ -246,7 +222,7 @@ def commentId():
 
     return render_template('view_comment.html', comment=comment)
 
-@app.route('/comment', methods=["GET", "PUT", "PATCH"])
+@app.route('/comments', methods=["GET", "PUT", "PATCH"])
 def view_all_comments():
     """Show comments"""
     
