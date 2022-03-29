@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<body>
+  {% for drink in drinks %}
+  <h1>{{drink.id}}</h1>
+
+  <div class="drink" id="{{drink.id}}">
+  <h2>{{drink.name}}</h2>
+  <a href="/cocktail/{{drink.id}}"><img src="{{drink.image}}"><img></a>
+  <h2>Instruction:</h2>
+  <p>{{drink.instructions}}</p>
+  {% endfor %}
+</body>
+
+
+{% endblock %}

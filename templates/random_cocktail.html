@@ -23,14 +23,13 @@
   </ul>
     <h2>Instruction:</h2>
     <p>{{cocktail.drink.instructions}}</p>
-    <form method="post" action="/favorites">
-      <button>Add Favorite</button>
+    <form method="post" action="/drinks/{{cocktail.drink.id}}/favorites">
+      <input type="submit" value="Add Favorite">
     </form>
-    <form method="post" action="/comment/new">
-      <button>Add Comment</button>
+    <form method="post" action="/drinks/{{cocktail.drink.id}}/comments">
+     <textarea name="comment"></textarea>
+     <input type="submit" value="Add Comment">
     </form>
-    <a href="/favorites"><input type="button" value="Add Favorite"></a>
-    <a href="/comment/new"><input type="button" value="Add Comment"></a>
   </div>
 </body>
 

@@ -16,7 +16,11 @@ class User(db.Model):
     username = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
-
+    fav_drinks = db.relationship(
+            "Drink",
+            secondary="favorites",
+            backref="users"
+        )
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
