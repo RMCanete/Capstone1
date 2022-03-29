@@ -159,12 +159,14 @@ def show_cocktail(id):
         return redirect("/signup")
 
     cocktail = Drink.query.get_or_404(id)
+    drink_ingredient = DrinkIngredient.query.all()
+    ingredient = Ingredient.query.all()
 
-    add_drink(cocktail)
+    # add_drink(cocktail)
 
-    return render_template('show_cocktail.html',cocktail=cocktail)
+    return render_template('show_cocktail.html',cocktail=cocktail, drink_ingredient=drink_ingredient, ingredient=ingredient)
 
-@app.route('/favorites')
+@app.route('/favorites', methods=["GET", "POST"])
 def fav():
     """Show favorites"""
 
@@ -198,16 +200,15 @@ def commentNew():
     if not g.user:
         flash("Access unauthorized!", "danger")
         return redirect("/")
-
-    form = CommentForm()
+    user = g.user
+    form = CommentForm(obj=user)
 
     if form.validate_on_submit():
         comment = form.comment.data
-        # g.comments.add(comment)
-        db.session.add(comment)
+        print(comment)
+        # db.session.add(comment)
         db.session.commit()
         flash(f"Added {comment}!")
-
         return redirect(f"/users/{g.user.id}")
 
     else:
@@ -222,13 +223,13 @@ def commentId():
 
     return render_template('view_comment.html', comment=comment)
 
-@app.route('/comments', methods=["GET", "PUT", "PATCH"])
+@app.route('/comments', methods=["GET", "POST", "PUT", "PATCH"])
 def view_all_comments():
     """Show comments"""
     
     comments = Comment.query.all()
 
-    return render_template('view__all_comment.html', comments=comments)
+    return render_template('view_all_comments.html', comments=comments)
 
 @app.route('/users/<int:user_id>')
 def show_user(user_id):

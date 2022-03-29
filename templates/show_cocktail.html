@@ -2,7 +2,10 @@
 {% block content %}
 
 <body>
-    
+    {{cocktail}}
+  {{drink_ingredient.quantity}}
+  {{ingredient.name}}
+
   <div class="drink" id="{{cocktail.idDrink}}">
   <h2>{{cocktail.name}}</h2>
     <img src="{{cocktail.image}}"><img>
@@ -10,12 +13,10 @@
     <ul>
     {% for ingredient in cocktail.ingredients %}
       <li id="{{ingredient.name}}">{{ingredient.name}}
-      {% if drink_ingredient %} -->
-      {{ingredient.name}}
-        <!-- {% if ingredient.name %}
-            <span>, Quantity: {{drink_ingredient.quantity}} {{drink_ingredient.measurement_unit}}</span>
-        {% endif %}
-      {% endif %}
+        {% for quantity in drink_ingredient.quantity %}
+          <span>, quantity </span>
+          {% endfor %}
+
     </li>
     {% endfor %}
   </ul>

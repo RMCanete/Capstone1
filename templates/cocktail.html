@@ -2,8 +2,9 @@
 {% block content %}
 
 <body>
-
+ {{cocktails}}
     {% for cocktail in cocktails %}
+    {{cocktail}}
     <a href="/cocktail/{{cocktail.id}}"><h2>{{cocktail.name}}</h2>
     <img src="{{cocktail.image}}"><img></a>
     {% endfor %}

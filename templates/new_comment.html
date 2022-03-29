@@ -2,7 +2,7 @@
 {% block content %}
 <h1> Add comment </h1>
 
-<form id="add-comment" method="POST">
+<form id="add-comment" method="POST" action="/comments">
     {{ form.hidden_tag() }} <!--add type=hidden form fields -->
   
     {% for field in form
