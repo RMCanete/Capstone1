@@ -5,7 +5,7 @@ from flask import Flask, render_template, flash, redirect, request, session, g, 
 # from flask_debugtoolbar import DebugToolbarExtension
 from forms import UserAddForm, LoginForm, CommentForm,CocktailSearch
 from models import db, connect_db, User, Drink, DrinkIngredient, Comment, Ingredient, Favorite
-from helper import add_drink, check_for_ingredient,parse_drink
+from helper import add_drink, check_for_ingredient,parse_drink,check_for_drink
 from api import get_drink_by_id,get_drinks_by_name,get_random_cocktail
 CURR_USER_KEY = "curr_user"
 # FLASK_DEBUG=True
@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -127,7 +127,6 @@ def cocktail_random():
 
     random_cocktail=get_random_cocktail()
 
-    # add_drink(random_cocktail)
     return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail))
 
 
@@ -166,7 +165,46 @@ def show_cocktail(id):
 
     return render_template('show_cocktail.html',cocktail=cocktail, drink_ingredient=drink_ingredient, ingredient=ingredient)
 
-@app.route('/favorites', methods=["GET", "POST"])
+
+
+@app.route('/drinks/<id>/favorites', methods=["POST"])
+def fav_drink(id):
+    """Show favorites"""
+
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+    
+    drink=check_for_drink(id)
+    if not drink:
+        cocktail=get_drink_by_id(id)
+        add_drink(cocktail)
+        drink= Drink.query.get_or_404(id)
+    
+    user=g.user
+    if id not in [drink.id for drink in user.fav_drinks]:
+        user.fav_drinks.append(drink)
+        db.session.add(user)
+        db.session.commit()
+    return redirect("/")
+
+@app.route('/drinks/<id>/favorites', methods=["DELETE"])
+def fav_drink_delete(id):
+    """Show favorites"""
+
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+
+    user=g.user
+    if id in [drink.id for drink in user.fav_drinks]:
+        user.fav_drinks=[drink for drink in user.fav_drinks if drink.id != id]
+        db.session.add(user)
+        db.session.commit()
+    return redirect("/")
+
+
+@app.route('/favorites', methods=["GET"])
 def fav():
     """Show favorites"""
 
@@ -174,12 +212,8 @@ def fav():
         flash("Access unauthorized!", "danger")
         return redirect("/")
     
-    favorite = Favorite.query.all()
-    drink = Drink.query.all()
-    drinkIngredient = DrinkIngredient.query.all()
-    ingredients = Ingredient.query.all()
-    
-    return render_template('show_favorites.html', favorite=favorite, cocktail=drink, ingredients=ingredients, drinkIngredient=drinkIngredient)
+    user = g.user
+    return render_template('show_favorites_v2.html', drinks=user.fav_drinks)
 
 
 @app.route('/favorite/<int:id>')
