@@ -18,7 +18,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -127,7 +127,9 @@ def cocktail_random():
 
     random_cocktail=get_random_cocktail()
 
-    return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail))
+    form = CommentForm()
+
+    return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail), form=form)
 
 
 @app.route('/cocktail')
@@ -248,6 +250,39 @@ def commentNew():
     else:
         return render_template(
             "new_comment.html", form=form)
+
+
+@app.route('/drinks/<id>/comments', methods=["POST"])
+def drink_comment(id):
+    """Show favorites"""
+
+    if not g.user:
+        flash("Access unauthorized!", "danger")
+        return redirect("/")
+
+    form = CommentForm()
+
+    drink=check_for_drink(id)
+    if not drink:
+        cocktail=get_drink_by_id(id)
+        add_drink(cocktail)
+        drink= Drink.query.get_or_404(id)
+    
+    user=g.user
+    if form.validate_on_submit():
+        # comment = form.comment.data
+
+        if id not in [comment.id for comment in user.comments]:
+            comment = form.comment.data
+            print(comment)
+            user.comments.append(comment)
+            db.session.add(user)
+            db.session.commit()
+    return redirect("/")
+
+    # if id not in [drink.id for drink in user.fav_drinks]:
+
+
 
 @app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
 def commentId():
