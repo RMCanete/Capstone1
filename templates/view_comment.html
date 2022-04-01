@@ -2,19 +2,26 @@
 {% block content %}
 
 <body>
-    <div class="container">
-      <h1 class="text-center display-1">Comment</h1>
-      <div class="row justify-content-center">
-        <div class="col-6">
-          <ul id="favorites-list">
-          </ul>
-          <ul id="drinks-list">
-          </ul>
-          <ul id="comments-list">
-        </ul>
-        </div>
-      </div>
-    </div>
+<h1>{{ cocktail.name }}</h1>
+<img src="{{ cocktail.image }}" alt=""></img>
+{{ cocktail.name  }}
+{{ cocktail.instructions }}
+{% for ingredient in cocktail.ingredients %}
+    <li id="{{ingredient.id}}">{{ingredient.name}}</li>
+    {% for drink_ingredient in cocktail.ingredients %}
+        {% if drink_ingredient.ingredient_id == ingredient.id %}
+            {% if drink_ingredient.drink_id == cocktail.drink.id %}
+                <li>Quantity: {{drink_ingredient.quantity}} {{ drink_ingredient.measurement_unit}} </li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+<h2>Comment:</h2>
+{% for comment in cocktail.comments %}
+<p>{{ comment.text }}</p>
+{% endfor %}
+
+    
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script src="/static/drinks.js"></script>

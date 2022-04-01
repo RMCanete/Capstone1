@@ -3,8 +3,8 @@
 
 <body>
     {{cocktail}}
-  {{drink_ingredient.quantity}}
-  {{ingredient.name}}
+  {{drink_ingredients.quantity}}
+  {{ingredients.name}}
 
   <div class="drink" id="{{cocktail.idDrink}}">
   <h2>{{cocktail.name}}</h2>
@@ -13,10 +13,11 @@
     <ul>
     {% for ingredient in cocktail.ingredients %}
       <li id="{{ingredient.name}}">{{ingredient.name}}
-        {% for quantity in drink_ingredient.quantity %}
-          <span>, quantity </span>
+        {% if drink_ingredients.id == ingredients.id %}
+        {% for quantity in drink_ingredients.quantity %}
+          <span>, quantity {{ quantity }} {{ measurement_unit }}</span>
           {% endfor %}
-
+{% endif %}
     </li>
     {% endfor %}
   </ul>
@@ -24,6 +25,38 @@
     <p>{{cocktail.instructions}}</p>
     
   </div>
+
+
+  <h1>{{cocktail}}</h1>
+  <!-- <h1>{{cocktail.id}}</h1> -->
+  <h1>{{drink_ingredients}}</h1>
+{% if ingredients.id in drink_ingredients.ingredients_id %}
+{{ ingredients.name }}
+{% endif %}
+
+  {% for drink_ingredient in drinkIngredient %}
+  {% if drink_ingredient.drink_id == drink_ingredient.drink_id %}
+  Quantity: {{drink_ingredient.quantity}}
+  {{drink_ingredient.measurement_unit}}
+{% endif %}
+  {% endfor %}
+
+  <h1>{{ingredients}}/////////////////</h1>
+  {% for ingredient in ingredients %}
+      {% if ingredient in drinkIngredients %}
+          {{ingredient.name}}
+          {% if drink_ingredients.drink_id == ingredient.drink_id %}
+              Quantity: {{drink_ingredient.quantity}}
+              {{drink_ingredient.measurement}}
+
+              {% endif %}
+              {% endif %}
+  {% endfor %}
+
+
+
+
+
 </body>
 
 

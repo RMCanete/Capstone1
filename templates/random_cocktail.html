@@ -26,34 +26,12 @@
     <form method="post" action="/drinks/{{cocktail.drink.id}}/favorites">
       <input type="submit" value="Add Favorite">
     </form>
-     <form id="add-comment" method="post" action="/drinks/{{cocktail.drink.id}}/comments">
-      {{ form.hidden_tag() }} <!--add type=hidden form fields -->
-    
-      {% for field in form
-             if field.widget.input_type != 'hidden' %}
-    
-        <p>
-          {{ field.label }}
-          {{ field }}
-    
-          {% for error in field.errors %}
-            {{ error }}
-          {% endfor %}
-        </p>
-    
-      {% endfor %}
-    
-      <button type="submit" >Add Comment</button>
-    </form>
-
-
-
-
-    </form>
+    <form method="post" action="/drinks/{{cocktail.drink.id}}/comments">
+      <textarea name="new_comment"></textarea>
+      <input type="submit" value="Add Comment">
+    </form> 
   </div>
 </body>
 
 
 {% endblock %}
-
-<!-- == ingredient.name and drink_ingredient.drink_id == cocktail.drink.id  -->

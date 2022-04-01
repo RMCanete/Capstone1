@@ -8,9 +8,15 @@
   <div class="drink" id="{{drink.id}}">
   <h2>{{drink.name}}</h2>
   <a href="/cocktail/{{drink.id}}"><img src="{{drink.image}}"><img></a>
+  <form method="post" action="/drinks/{{drink.id}}/favorites/delete">
+    <input type="submit" value="Delete">
+  </form>
   <h2>Instruction:</h2>
   <p>{{drink.instructions}}</p>
   {% endfor %}
+
+
+
 </body>
 
 

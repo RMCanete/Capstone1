@@ -1,5 +1,6 @@
 import os
 from sqlite3 import IntegrityError
+import datetime
 # from sqlalchemy.exc import IntegrityError
 from flask import Flask, render_template, flash, redirect, request, session, g, jsonify
 # from flask_debugtoolbar import DebugToolbarExtension
@@ -160,12 +161,12 @@ def show_cocktail(id):
         return redirect("/signup")
 
     cocktail = Drink.query.get_or_404(id)
-    drink_ingredient = DrinkIngredient.query.all()
-    ingredient = Ingredient.query.all()
+    drink_ingredients = DrinkIngredient.query.all()
+    ingredients = Ingredient.query.all()
 
     # add_drink(cocktail)
 
-    return render_template('show_cocktail.html',cocktail=cocktail, drink_ingredient=drink_ingredient, ingredient=ingredient)
+    return render_template('show_cocktail.html',cocktail=cocktail, drink_ingredients=drink_ingredients, ingredients=ingredients)
 
 
 
@@ -190,7 +191,7 @@ def fav_drink(id):
         db.session.commit()
     return redirect("/")
 
-@app.route('/drinks/<id>/favorites', methods=["DELETE"])
+@app.route('/drinks/<id>/favorites/delete', methods=["POST"])
 def fav_drink_delete(id):
     """Show favorites"""
 
@@ -201,9 +202,9 @@ def fav_drink_delete(id):
     user=g.user
     if id in [drink.id for drink in user.fav_drinks]:
         user.fav_drinks=[drink for drink in user.fav_drinks if drink.id != id]
-        db.session.add(user)
+        db.session.delete(id)
         db.session.commit()
-    return redirect("/")
+    return redirect("/favorites")
 
 
 @app.route('/favorites', methods=["GET"])
@@ -260,7 +261,6 @@ def drink_comment(id):
         flash("Access unauthorized!", "danger")
         return redirect("/")
 
-    form = CommentForm()
 
     drink=check_for_drink(id)
     if not drink:
@@ -269,28 +269,25 @@ def drink_comment(id):
         drink= Drink.query.get_or_404(id)
     
     user=g.user
-    if form.validate_on_submit():
-        # comment = form.comment.data
-
-        if id not in [comment.id for comment in user.comments]:
-            comment = form.comment.data
-            print(comment)
-            user.comments.append(comment)
-            db.session.add(user)
-            db.session.commit()
-    return redirect("/")
+    newComment = request.form.get("new_comment")
+    comment  = Comment(text=newComment,user_id=g.user.id,drink_id=id,created_at=datetime.datetime.now())
+    db.session.add(comment)
+    db.session.commit()
+    
+    return redirect("/comments")
 
     # if id not in [drink.id for drink in user.fav_drinks]:
 
 
 
 @app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
-def commentId():
+def commentId(id):
     """Show comment"""
     
     comment = Comment.query.get_or_404(id)
+    cocktail = Drink.query.get_or_404(comment.drink_id)
 
-    return render_template('view_comment.html', comment=comment)
+    return render_template('view_comment.html', cocktail=cocktail)
 
 @app.route('/comments', methods=["GET", "POST", "PUT", "PATCH"])
 def view_all_comments():

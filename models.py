@@ -21,12 +21,6 @@ class User(db.Model):
             secondary="favorites",
             backref="users"
         )
-    comments = db.relationship(
-            "Drink",
-            secondary="comments",
-            backref="comments_users",
-            primaryjoin="User.id == Comment.user_id"   
-        )
     
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -77,9 +71,6 @@ class Drink(db.Model):
     )
     comments = db.relationship(
         "Comment",
-        secondary="users",
-        backref="comment_drinks",
-        primaryjoin="Drink.id == Comment.drink_id"  
     )
 
     def serialize(self):
