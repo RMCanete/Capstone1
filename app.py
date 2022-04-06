@@ -19,7 +19,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -114,7 +114,7 @@ def homepage():
     if g.user:
 
         form = CocktailSearch()
-        return render_template('new_home.html', searchForm=form)
+        return render_template('home.html', searchForm=form)
 
     form = LoginForm()    
     return redirect('/login')
@@ -219,30 +219,17 @@ def fav():
 
     return render_template('show_favorites.html', drinks=user.fav_drinks, comments=comments)
 
-#remove
-@app.route('/comment/new', methods=["GET", "POST"])
-def commentNew():
-    """New comment"""
-    
+@app.route('/favorite/<int:id>')
+def favId(id):
+    """Show favorite drink"""
+
     if not g.user:
         flash("Access unauthorized!", "danger")
         return redirect("/")
-    user = g.user
-    form = CommentForm(obj=user)
+    drink = Drink.query.get_or_404(id)
+    comments = Comment.query.all()
 
-    if form.validate_on_submit():
-        comment = form.comment.data
-        print(comment)
-        # db.session.add(comment)
-        db.session.commit()
-        flash(f"Added {comment}!")
-        return redirect(f"/users/{g.user.id}")
-
-    else:
-        return render_template(
-            "new_comment.html", form=form)
-
-
+    return render_template('view_favorite_drink.html', cocktail=drink, comments=comments)
 
 @app.route('/drinks/<id>/comments', methods=["POST"])
 def drink_comment(id):
@@ -266,45 +253,6 @@ def drink_comment(id):
     db.session.commit()
     
     return redirect(f"/drinks/{id}")
-
-    # if id not in [drink.id for drink in user.fav_drinks]:
-
-
-#remove
-@app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
-def commentId(id):
-    """Show comment"""
-    
-    comment = Comment.query.get_or_404(id)
-    cocktail = Drink.query.get_or_404(comment.drink_id)
-
-    return render_template('view_comment.html', cocktail=cocktail)
-
-#remove
-@app.route('/comments', methods=["GET", "POST", "PUT", "PATCH"])
-def view_all_comments():
-    """Show comments"""
-    
-    comments = Comment.query.all()
-
-    return render_template('view_all_comments.html', comments=comments)
-
-#remove
-@app.route('/users/<int:user_id>')
-def show_user(user_id):
-    """Show user profile"""
-
-    if not g.user:
-        flash("Access unauthorized!", "danger")
-        return redirect("/")
-
-    user = User.query.get_or_404(user_id)
-
-    comments = (Comment.query.filter(Comment.user_id == user_id))
-
-    return render_template('show_user.html', user = user, comments = comments)
-
-
 
 @app.errorhandler(404)
 def page_not_found(e):
