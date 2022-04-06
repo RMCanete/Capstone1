@@ -217,7 +217,10 @@ def fav():
         return redirect("/")
     
     user = g.user
-    return render_template('show_favorites_v2.html', drinks=user.fav_drinks)
+    comments = Comment.query.all()
+    # comments = (Comment.query.filter(user.fav_drinks))
+
+    return render_template('show_favorites_v2.html', drinks=user.fav_drinks, comments=comments)
 
 
 @app.route('/favorite/<int:id>')

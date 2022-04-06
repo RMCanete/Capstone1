@@ -13,10 +13,12 @@
   </form>
   <h2>Instruction:</h2>
   <p>{{drink.instructions}}</p>
+  {% for comment in comments %}
+  {% if comment.drink_id == drink.id %}
+  <p>Comment: {{ comment.text }}</p>
+  {% endif %}
   {% endfor %}
-
-
-
+  {% endfor %}
 </body>
 
 
