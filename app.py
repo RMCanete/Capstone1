@@ -119,7 +119,7 @@ def homepage():
     form = LoginForm()    
     return redirect('/login')
 
-@app.route('/cocktail/random')
+@app.route('/drinks/random')
 def cocktail_random():
     """Show random cocktail page"""
     if not g.user:
@@ -133,7 +133,7 @@ def cocktail_random():
     return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail), form=form)
 
 
-@app.route('/cocktail')
+@app.route('/drinks')
 def cocktail():
     """Show cocktail"""
     if not g.user:
@@ -155,7 +155,7 @@ def cocktail():
 
     # return redirect("/")
 
-@app.route('/cocktail/<id>')
+@app.route('/drinks/<id>')
 def show_cocktail(id):
     """Show random cocktail page"""
     if not g.user:
@@ -191,7 +191,7 @@ def fav_drink(id):
         user.fav_drinks.append(drink)
         db.session.add(user)
         db.session.commit()
-    return redirect("/")
+    return redirect("/favorites")
 
 @app.route('/drinks/<id>/favorites/delete', methods=["POST"])
 def fav_drink_delete(id):

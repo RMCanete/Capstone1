@@ -3,12 +3,11 @@
 
 <body>
     {% for cocktail in cocktails %}
-    <a href="/cocktail/{{cocktail.idDrink}}"><h2>{{cocktail.strDrink}}</h2>
-    <img src="{{cocktail.strDrinkThumb}}"><img></a>
-    {% endfor %}
-    <h2>Comment:</h2>
+    <a href="/drinks/{{cocktail.idDrink}}"><h2>{{cocktail.strDrink}}</h2>
+    <img src="{{cocktail.strDrinkThumb}}"><img></a>>
     {% for comment in cocktail.comments %}
-    <p>{{ comment.text }}</p>
+    <p>Comment: {{ comment.text }}</p>
+    {% endfor %}
     {% endfor %}
 </body>
 
