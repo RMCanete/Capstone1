@@ -19,7 +19,7 @@ app = Flask(__name__)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql://postgres:2118@localhost/capstone_1'))
+    os.environ.get('DATABASE_URL', 'postgresql:///capstone_1'))
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
@@ -127,10 +127,9 @@ def cocktail_random():
         return redirect("/signup")
 
     random_cocktail=get_random_cocktail()
-
-    form = CommentForm()
-
-    return render_template('random_cocktail.html',cocktail=parse_drink(random_cocktail), form=form)
+    add_drink(random_cocktail)
+    print(random_cocktail["idDrink"])
+    return redirect(f'/drinks/{random_cocktail["idDrink"]}')
 
 
 @app.route('/drinks')
@@ -163,12 +162,10 @@ def show_cocktail(id):
         return redirect("/signup")
 
     cocktail = Drink.query.get_or_404(id)
-    drink_ingredients = DrinkIngredient.query.all()
-    ingredients = Ingredient.query.all()
-
+    drink_ingredients = DrinkIngredient.query.filter_by(drink_id=id)
     # add_drink(cocktail)
 
-    return render_template('show_cocktail.html',cocktail=cocktail, drink_ingredients=drink_ingredients, ingredients=ingredients)
+    return render_template('show_cocktail.html',cocktail=cocktail,drink_ingredients=drink_ingredients)
 
 
 
@@ -220,21 +217,9 @@ def fav():
     comments = Comment.query.all()
     # comments = (Comment.query.filter(user.fav_drinks))
 
-    return render_template('show_favorites_v2.html', drinks=user.fav_drinks, comments=comments)
+    return render_template('show_favorites.html', drinks=user.fav_drinks, comments=comments)
 
-
-@app.route('/favorite/<int:id>')
-def favId(id):
-    """Show favorite drink"""
-
-    if not g.user:
-        flash("Access unauthorized!", "danger")
-        return redirect("/")
-    drink = Drink.query.get_or_404(id)
-    comments = Comment.query.all()
-    
-    return render_template('view_favorite_drink.html', cocktail=drink, comments=comments)
-
+#remove
 @app.route('/comment/new', methods=["GET", "POST"])
 def commentNew():
     """New comment"""
@@ -258,6 +243,7 @@ def commentNew():
             "new_comment.html", form=form)
 
 
+
 @app.route('/drinks/<id>/comments', methods=["POST"])
 def drink_comment(id):
     """Show favorites"""
@@ -275,16 +261,16 @@ def drink_comment(id):
     
     user=g.user
     newComment = request.form.get("new_comment")
-    comment  = Comment(text=newComment,user_id=g.user.id,drink_id=id,created_at=datetime.datetime.now())
+    comment  = Comment(text=newComment,user_id=user.id,drink_id=id,created_at=datetime.datetime.now())
     db.session.add(comment)
     db.session.commit()
     
-    return redirect("/comments")
+    return redirect(f"/drinks/{id}")
 
     # if id not in [drink.id for drink in user.fav_drinks]:
 
 
-
+#remove
 @app.route('/comment/<int:id>', methods=["GET", "PUT", "PATCH"])
 def commentId(id):
     """Show comment"""
@@ -294,6 +280,7 @@ def commentId(id):
 
     return render_template('view_comment.html', cocktail=cocktail)
 
+#remove
 @app.route('/comments', methods=["GET", "POST", "PUT", "PATCH"])
 def view_all_comments():
     """Show comments"""
@@ -302,6 +289,7 @@ def view_all_comments():
 
     return render_template('view_all_comments.html', comments=comments)
 
+#remove
 @app.route('/users/<int:user_id>')
 def show_user(user_id):
     """Show user profile"""

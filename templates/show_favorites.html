@@ -2,66 +2,23 @@
 {% block content %}
 
 <body>
-  <h1>{{cocktail}}</h1>
-  <!-- <h1>{{cocktail.id}}</h1> -->
-  <h1>{{drinkIngredient}}</h1>
-  {% for drink_ingredient in drinkIngredient %}
-  {% if drink_ingredient.drink_id == drink_ingredient.drink_id %}
-  Quantity: {{drink_ingredient.quantity}}
-  {{drink_ingredient.measurement}}
-{% endif %}
+  {% for drink in drinks %}
+  <h1>{{drink.id}}</h1>
+
+  <div class="drink" id="{{drink.id}}">
+  <h2>{{drink.name}}</h2>
+  <a href="/drinks/{{drink.id}}"><img src="{{drink.image}}"><img></a>
+  <form method="post" action="/drinks/{{drink.id}}/favorites/delete">
+    <input type="submit" class="btn btn-danger" value="Delete">
+  </form>
+  <h2>Instruction:</h2>
+  <p>{{drink.instructions}}</p>
+  {% for comment in comments %}
+  {% if comment.drink_id == drink.id %}
+  <p>Comment: {{ comment.text }}</p>
+  {% endif %}
   {% endfor %}
-
-  <h1>{{ingredients}}/////////////////</h1>
-  {% for ingredient in ingredients %}
-      {% if ingredient in drinkIngredient %}
-          {{ingredient.name}}
-          {% if drink_ingredient.drink_id == drink_ingredient.drink_id %}
-              Quantity: {{drink_ingredient.quantity}}
-              {{drink_ingredient.measurement}}
-
-              {% endif %}
-              {% endif %}
   {% endfor %}
-
-
-
-{% for drink in cocktail %}
-<div>{{drink.id}}
-{{drink.name}}
-<img src="{{drink.image}}">
-{{drink.instructions}}
-{{drink.ingredients}}
-
-{% for ingredients in drink.drink_ingredients %}
-<li>ingredients.quantity</li>
-{% endfor %}
-</div>
-{% endfor %}
-
-<div class="drink" id="{{cocktail.id}}">
-  <h2>{{cocktail.name}}</h2>
-    <a href="/cocktail/{{cocktail.id}}"><img src="{{cocktail.image}}"><img></a>
-    <h2>Ingredients:</h2>
-    <ul>
-    {% for ingredient in cocktail.ingredients %}
-      <li id="{{ingredient.id}}">{{ingredient.name}}
-      {% for drink_ingredient in cocktail.drink_ingredients %}
-        {% if drink_ingredient.ingredient_id == ingredient.id %}
-        {% if drink_ingredient.drink_id == cocktail.drink.id %}
-            <span>, Quantity: {{drink_ingredient.quantity}} {{drink_ingredient.measurement_unit}}</span>
-            {% endif %}
-            {% endif %}
-            {% endfor %}
-    </li>
-    {% endfor %}
-  </ul>
-    <h2>Instruction:</h2>
-    <p>{{cocktail.instructions}}</p>
-    
-    <a href="/favorites"><input type="button" value="Add Favorite"></a>
-    <a href="/comment/new"><input type="button" value="Add Comment"></a>
-  </div>
 </body>
 
 

@@ -101,6 +101,9 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="cascade"))
     drink_id = db.Column(db.Integer, db.ForeignKey('drinks.id', ondelete="cascade"))
     created_at = db.Column(db.DateTime, nullable=False)
+    user=db.relationship(
+        "User",
+    )
 
 class Ingredient(db.Model):
     
