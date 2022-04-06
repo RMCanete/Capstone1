@@ -2,10 +2,6 @@
 {% block content %}
 
 <body>
-    {{cocktail}}
-  {{drink_ingredients.quantity}}
-  {{ingredients.name}}
-
   <div class="drink" id="{{cocktail.idDrink}}">
   <h2>{{cocktail.name}}</h2>
   <a href="/drinks/{{cocktail.id}}"><img src="{{cocktail.image}}"><img></a>
@@ -13,18 +9,20 @@
     <ul>
     {% for ingredient in cocktail.ingredients %}
       <li id="{{ingredient.name}}">{{ingredient.name}}
-        {% if drink_ingredients.id == ingredients.id %}
-        {% for quantity in drink_ingredients.quantity %}
-          <span>, quantity {{ quantity }} {{ measurement_unit }}</span>
-          {% endfor %}
-{% endif %}
+        {% for drink_ingredient in drink_ingredients %}
+        {% if drink_ingredient.ingredient_id == ingredient.id %}
+          <span>, quantity {{ drink_ingredient.quantity }} {{ drink_ingredient.measurement_unit }}</span>
+        {% endif %}
+        {% endfor %}
+
     </li>
     {% endfor %}
   </ul>
     <h2>Instruction:</h2>
     <p>{{cocktail.instructions}}</p>
+    <h2>Comments:</h2>
     {% for comment in cocktail.comments %}
-    <p>Comment: {{ comment.text }}</p>
+    <p>{{comment.user.username}} @ {{comment.created_at.strftime('%Y-%m-%d %H:%M%:%S')}}: {{ comment.text }}</p>
     {% endfor %}
     <form method="post" action="/drinks/{{cocktail.id}}/favorites">
       <input type="submit" class="btn btn-primary" value="Add Favorite">
