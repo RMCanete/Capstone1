@@ -2,11 +2,11 @@
 {% block content %}
 
 <body>
-  <h1>{{cocktail.drink.id}}</h1>
+  <h1>{{cocktail.id}}</h1>
 
-  <div class="drink" id="{{cocktail.drink.id}}">
-  <h2>{{cocktail.drink.name}}</h2>
-    <a href="/cocktail/{{cocktail.drink.id}}"><img src="{{cocktail.drink.image}}"><img></a>
+  <div class="drink" id="{{cocktail.id}}">
+  <h2>{{cocktail.name}}</h2>
+    <a href="/cocktail/{{cocktail.id}}"><img src="{{cocktail.image}}"><img></a>
     <h2>Ingredients:</h2>
     <ul>
     {% for ingredient in cocktail.ingredients %}
@@ -22,10 +22,19 @@
     {% endfor %}
   </ul>
     <h2>Instruction:</h2>
-    <p>{{cocktail.drink.instructions}}</p>
-    
-    <a href="/favorites"><input type="button" value="Add Favorite"></a>
-    <a href="/comment/new"><input type="button" value="Add Comment"></a>
+    <p>{{cocktail.instructions}}</p>
+    {% for comment in comments %}
+    {% if comment.drink_id == cocktail.id %}
+    <p>Comment: {{ comment.text }}</p>
+    {% endif %}
+    {% endfor %}
+    <form method="post" action="/drinks/{{cocktail.id}}/comments">
+      <textarea name="new_comment"></textarea>
+      <input type="submit" class="btn btn-success" value="Add Comment">
+    </form> 
+    <form method="post" action="/drinks/{{cocktail.id}}/favorites/delete">
+      <input type="submit" class="btn btn-danger" value="Delete">
+    </form>
   </div>
 </body>
 

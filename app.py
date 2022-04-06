@@ -231,8 +231,9 @@ def favId(id):
         flash("Access unauthorized!", "danger")
         return redirect("/")
     drink = Drink.query.get_or_404(id)
-
-    return render_template('view_favorite_drink.html', cocktail=drink)
+    comments = Comment.query.all()
+    
+    return render_template('view_favorite_drink.html', cocktail=drink, comments=comments)
 
 @app.route('/comment/new', methods=["GET", "POST"])
 def commentNew():
