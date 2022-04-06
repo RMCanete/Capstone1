@@ -6,7 +6,7 @@
 
   <div class="drink" id="{{cocktail.drink.id}}">
   <h2>{{cocktail.drink.name}}</h2>
-    <a href="/cocktail/{{cocktail.drink.id}}"><img src="{{cocktail.drink.image}}"><img></a>
+    <img src="{{cocktail.drink.image}}"><img>
     <h2>Ingredients:</h2>
     <ul>
     {% for ingredient in cocktail.ingredients %}
@@ -23,12 +23,15 @@
   </ul>
     <h2>Instruction:</h2>
     <p>{{cocktail.drink.instructions}}</p>
+    {% for comment in cocktail.comments %}
+    <p>Comment: {{ comment.text }}</p>
+    {% endfor %}
     <form method="post" action="/drinks/{{cocktail.drink.id}}/favorites">
-      <input type="submit" value="Add Favorite">
+      <input type="submit" class="btn btn-primary" value="Add Favorite">
     </form>
     <form method="post" action="/drinks/{{cocktail.drink.id}}/comments">
       <textarea name="new_comment"></textarea>
-      <input type="submit" value="Add Comment">
+      <input type="submit" class="btn btn-success" value="Add Comment">
     </form> 
   </div>
 </body>

@@ -9,7 +9,7 @@
   <h2>{{drink.name}}</h2>
   <a href="/cocktail/{{drink.id}}"><img src="{{drink.image}}"><img></a>
   <form method="post" action="/drinks/{{drink.id}}/favorites/delete">
-    <input type="submit" value="Delete">
+    <input type="submit" class="btn btn-danger" value="Delete">
   </form>
   <h2>Instruction:</h2>
   <p>{{drink.instructions}}</p>

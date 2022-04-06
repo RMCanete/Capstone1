@@ -140,12 +140,14 @@ def cocktail():
         flash("Access unauthorized.", "danger")
         return redirect("/signup")
 
-    # drink_name=request.args.get('search',None)
-    # if drink_name:
-    #     cocktails=get_drinks_by_name(drink_name)
-    #     if cocktails:
-    #         return render_template('cocktail.html',cocktails=cocktails)
-    #     return redirect("/")
+    drink_name=request.args.get('search',None)
+    if drink_name:
+        cocktails=get_drinks_by_name(drink_name)
+        if cocktails:
+            for cocktail in cocktails:
+                add_drink(cocktail)
+            return render_template('cocktail.html',cocktails=cocktails)
+        return redirect("/")
         
     drinks = Drink.query.all()
     
@@ -199,11 +201,10 @@ def fav_drink_delete(id):
         flash("Access unauthorized!", "danger")
         return redirect("/")
 
-    user=g.user
-    if id in [drink.id for drink in user.fav_drinks]:
-        user.fav_drinks=[drink for drink in user.fav_drinks if drink.id != id]
-        db.session.delete(id)
-        db.session.commit()
+    drink = Drink.query.get_or_404(id)
+    db.session.delete(drink)
+    db.session.commit()
+
     return redirect("/favorites")
 
 

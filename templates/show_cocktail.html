@@ -23,7 +23,13 @@
   </ul>
     <h2>Instruction:</h2>
     <p>{{cocktail.instructions}}</p>
-    
+    {% for comment in cocktail.comments %}
+    <p>Comment: {{ comment.text }}</p>
+    {% endfor %}
+    <form method="post" action="/drinks/{{cocktail.id}}/comments">
+      <textarea name="new_comment"></textarea>
+      <input type="submit" class="btn btn-success" value="Add Comment">
+    </form> 
   </div>
 
 
