@@ -3,7 +3,6 @@
 
 <body>
   {% for drink in drinks %}
-  <h1>{{drink.id}}</h1>
 
   <div class="drink" id="{{drink.id}}">
   <h2>{{drink.name}}</h2>
@@ -15,7 +14,7 @@
   <p>{{drink.instructions}}</p>
   {% for comment in comments %}
   {% if comment.drink_id == drink.id %}
-  <p>Comment: {{ comment.text }}</p>
+ <h6>{{ comment.user.username }} @ {{ comment.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}: {{ comment.text }}</h6>
   {% endif %}
   {% endfor %}
   {% endfor %}

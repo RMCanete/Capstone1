@@ -11,7 +11,7 @@
       <li id="{{ingredient.name}}">{{ingredient.name}}
         {% for drink_ingredient in drink_ingredients %}
         {% if drink_ingredient.ingredient_id == ingredient.id %}
-          <span>, {{ drink_ingredient.quantity }} {{ drink_ingredient.measurement_unit }}</span>
+          <span>- {{ drink_ingredient.quantity }} {{ drink_ingredient.measurement_unit }}</span>
         {% endif %}
         {% endfor %}
 
@@ -22,7 +22,7 @@
     <p>{{cocktail.instructions}}</p>
     <h2>Comments:</h2>
     {% for comment in cocktail.comments %}
-    <p>{{ comment.user.username }} @ {{ comment.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}: {{ comment.text }}</p>
+    <h6>{{ comment.user.username }} @ {{ comment.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}: {{ comment.text }}</h6>
     {% endfor %}
     <form method="post" action="/drinks/{{cocktail.id}}/favorites">
       <input type="submit" class="btn btn-primary" value="Add Favorite">

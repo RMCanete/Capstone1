@@ -25,7 +25,7 @@
     <p>{{cocktail.instructions}}</p>
     {% for comment in comments %}
     {% if comment.drink_id == cocktail.id %}
-    <p>Comment: {{ comment.text }}</p>
+    <h6>{{ comment.user.username }} @ {{ comment.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}: {{ comment.text }}</h6>
     {% endif %}
     {% endfor %}
     <form method="post" action="/drinks/{{cocktail.id}}/comments">
