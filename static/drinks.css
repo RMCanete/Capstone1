@@ -12,10 +12,27 @@ body {
 	padding: 20px;
 }
 h1 {
-	color: crimson
+	color: teal
 }
 h2{
-	color: olive
+	color: olive;
+	margin-top: .5in;
+	margin-bottom: .5in
+}
+h3{
+	color: olive;
+}
+h4{
+	font-style: italic;
+
+}
+a span {
+	font-size: 2.5rem;
+	margin-left: 10px;
+}
+a p{
+	font-style: italic;
+	display: inline-block;
 }
 span {
 	color: cadetblue;
@@ -31,6 +48,8 @@ li {
 }
 .btn {
 	border-radius: 40 px;
+	margin-top: .5in;
+	margin-bottom: .5in
 }
 .btn:hover {
 	cursor: pointer;
@@ -50,4 +69,7 @@ li {
 }
 .navbar-right li {
 	border: 2mm solid bisque;
+}
+.drink {
+	column-width:auto;
 }

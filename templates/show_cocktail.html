@@ -18,9 +18,9 @@
     </li>
     {% endfor %}
   </ul>
-    <h2>Instruction:</h2>
+    <h3>Instruction:</h3>
     <p>{{cocktail.instructions}}</p>
-    <h2>Comments:</h2>
+    <h5>Comments:</h5>
     {% for comment in cocktail.comments %}
     <h6>{{ comment.user.username }} @ {{ comment.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}: {{ comment.text }}</h6>
     {% endfor %}

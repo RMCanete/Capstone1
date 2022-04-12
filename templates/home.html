@@ -2,12 +2,13 @@
 {% block content %}
 
 <body>
-  
+  <div>
     <form method="Get" action="/drinks/random">
-      <button type="submit" class="btn btn-success">Get Random Cocktail</button>
+      <button type="submit" class="btn btn-success">Surprise me</button>
     </form>
-
-    <h1>Search for Cocktail</h1>
+  </div>
+  <div>
+    <h1>Search Recipes</h1>
 
     <form id="user-add-form" action="/drinks" method="GET">
       {{ searchForm.hidden_tag() }} <!--add type=hidden form fields -->
@@ -16,7 +17,6 @@
              if field.widget.input_type != 'hidden' %}
     
         <p>
-          {{ field.label }}
           {{ field }}
     
           {% for error in field.errors %}
@@ -26,8 +26,9 @@
     
       {% endfor %}
     
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="submit" class="btn btn-primary">Search</button>
     </form>
+  </div>
 </body>
 
 {% endblock %}
