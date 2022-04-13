@@ -26,16 +26,6 @@
         <p>Your Destination For Unique And Classic Mixed Drink Recipes</p>
     </div>
     <ul class="nav navbar-nav">
-      {% if request.endpoint != None %}
-      <li>
-        <!-- <form class="navbar-form navbar-right" action="http://www.thecocktaildb.com/browse.php">
-          <input type="text" name="s" class="form-control" placeholder="Search" id="search">
-          <button class="btn btn-default">
-            <span class="fa fa-search"></span>
-          </button>
-        </form> -->
-      </li>
-      {% endif %}
       {% if not g.user %}
       <li class="active"><a href="/signup">Sign up</a></li>
       <li> </li>
