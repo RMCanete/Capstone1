@@ -22,7 +22,7 @@
         <img src="/static/images/image.jpg" alt="logo">
       </a>
       <a href="/">
-        <span>   Cocktail Hour: </span></a>
+        <span>   Cocktail Hour </span></a>
         <p>Your Destination For Unique And Classic Mixed Drink Recipes</p>
     </div>
     <ul class="nav navbar-nav">
@@ -38,9 +38,11 @@
       {% endif %}
       {% if not g.user %}
       <li class="active"><a href="/signup">Sign up</a></li>
+      <li> </li>
       <li class="active"><a href="/login">Log in</a></li>
       {% else %}
       <li class="active"><a href="/favorites">Favorites</a></li>
+      <li> </li>
       <li class="active"><a href="/logout">Log out</a></li>
       {% endif %}
     </ul>
