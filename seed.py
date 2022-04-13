@@ -1,4 +1,3 @@
-from tkinter import INSERT
 from models import db
 from app import app
 
