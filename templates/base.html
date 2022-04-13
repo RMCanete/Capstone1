@@ -15,14 +15,14 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-expand">
   <div class="container-fluid">
     <div class="navbar-header">
       <a href="/" class="navbar-brand">
         <img src="/static/images/image.jpg" alt="logo">
+      </a>
         <span>   Cocktail Hour: </span>
         <p>Your Destination For Unique And Classic Mixed Drink Recipes</p>
-      </a>
     </div>
     <ul class="nav navbar-nav">
       {% if request.endpoint != None %}
@@ -36,11 +36,11 @@
       </li>
       {% endif %}
       {% if not g.user %}
-      <li><a href="/signup">Sign up</a></li>
-      <li><a href="/login">Log in</a></li>
+      <li class="active"><a href="/signup">Sign up</a></li>
+      <li class="active"><a href="/login">Log in</a></li>
       {% else %}
-      <li><a href="/favorites">Favorites</a></li>
-      <li><a href="/logout">Log out</a></li>
+      <li class="active"><a href="/favorites">Favorites</a></li>
+      <li class="active"><a href="/logout">Log out</a></li>
       {% endif %}
     </ul>
   </div>
