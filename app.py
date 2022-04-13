@@ -11,6 +11,15 @@ from api import get_drink_by_id,get_drinks_by_name,get_random_cocktail
 CURR_USER_KEY = "curr_user"
 # FLASK_DEBUG=True
 
+#### Per Heroku, to us SQLAlchemy:
+
+import re
+
+uri = os.getenv("DATABASE_URL")  # or other relevant config var
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+# rest of connection code using the connection string `uri`
+
 # You should keep your API key a secret (I'm keeping it here so you can run this app)
 key = '1'
 
