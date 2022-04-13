@@ -1,5 +1,5 @@
 # Website Title: Cocktail Hour
-## Deployed: https://git.heroku.com/cocktail--hour.git
+## Deployed: https://cocktail--hour.herokuapp.com/
 ## Website goals:
 The primary goal of the website is to have a searchable database of alcoholic beverages for a user to search. 
 The user can search by alcohol or cocktail name. 
