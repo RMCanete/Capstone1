@@ -15,7 +15,7 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
-<nav class="navbar navbar-expand">
+<nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
       <a href="/" class="navbar-brand">
@@ -24,7 +24,7 @@
         <p>Your Destination For Unique And Classic Mixed Drink Recipes</p>
       </a>
     </div>
-    <ul class="navbar navbar-default">
+    <ul class="nav navbar-nav navbar-right">
       {% if request.endpoint != None %}
       <li>
         <!-- <form class="navbar-form navbar-right" action="http://www.thecocktaildb.com/browse.php">
