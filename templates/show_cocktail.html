@@ -24,13 +24,13 @@
     {% for comment in cocktail.comments %}
     <h6>{{ comment.user.username }} @ {{ comment.created_at.strftime("%m/%d/%Y, %H:%M:%S") }}: {{ comment.text }}</h6>
     {% endfor %}
-    <form method="post" action="/drinks/{{cocktail.id}}/favorites">
-      <input type="submit" class="btn btn-primary" value="Add Favorite">
-    </form>
     <form method="post" action="/drinks/{{cocktail.id}}/comments">
       <textarea name="new_comment"></textarea>
       <input type="submit" class="btn btn-success" value="Add Comment">
     </form> 
+    <form method="post" action="/drinks/{{cocktail.id}}/favorites">
+      <input type="submit" class="btn btn-primary" value="Add Favorite">
+    </form>
   </div>
 
 
